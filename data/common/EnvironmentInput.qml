@@ -12,6 +12,7 @@ Device {
 
 	readonly property real temperature_celsius: _veTemperature.value === undefined ? NaN : _veTemperature.value
 	readonly property real humidity: _veHumidity.value === undefined ? NaN : _veHumidity.value
+	readonly property real status: _status.value === undefined ? VenusOS.EnvironmentInput_Status_Unknown : _status.value
 
 	readonly property VeQuickItem _veTemperature: VeQuickItem {
 		uid: serviceUid + "/Temperature"
@@ -24,7 +25,6 @@ Device {
 	}
 
 	property bool _valid: deviceInstance.value !== undefined
-			&& _status.value === VenusOS.EnvironmentInput_Status_Ok
 	on_ValidChanged: {
 		if (_valid) {
 			Global.environmentInputs.addInput(input)

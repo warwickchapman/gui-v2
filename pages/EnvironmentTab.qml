@@ -59,6 +59,7 @@ Flickable {
 			model: Global.environmentInputs.model
 
 			delegate: EnvironmentGaugePanel {
+				visible: model.input.status === VenusOS.EnvironmentInput_Status_Ok
 				animationEnabled: root.animationEnabled
 				horizontalSize: {
 					if (levelsRepeater.count === 0) {
@@ -83,7 +84,7 @@ Flickable {
 				verticalSize: (!!Global.pageManager && Global.pageManager.expandLayout)
 						? VenusOS.EnvironmentGaugePanel_Size_Expanded
 						: VenusOS.EnvironmentGaugePanel_Size_Compact
-				title: model.input.name
+				title:  model.input.name
 				temperature: Global.systemSettings.temperatureUnit.value === VenusOS.Units_Temperature_Fahrenheit
 						? Units.celsiusToFahrenheit(model.input.temperature_celsius)
 						: model.input.temperature_celsius

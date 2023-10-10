@@ -43,11 +43,40 @@ Page {
 			//% "Tanks"
 			{ value: qsTrId("levels_page_tanks"), enabled: Global.tanks.totalTankCount > 0 },
 			//% "Environment"
-			{ value: qsTrId("levels_page_environment"), enabled: Global.environmentInputs.model.count > 0 }
+			{ value: qsTrId("levels_page_environment"), enabled: environmentObjects.hasValidInputs }
 		]
 
 		currentIndex: _preferredIndex
 		onCurrentIndexChanged: _preferredIndex = currentIndex   // once user selects a tab, don't use the default index anymore
+	}
+
+	Instantiator {
+		id: environmentObjects
+
+		property bool hasValidInputs
+
+		model: Global.environmentInputs.model
+		delegate: QtObject {
+			readonly property int status: model.input.status === undefined
+				  ? VenusOS.EnvironmentInput_Status_Unknown
+				  : model.input.status
+
+			onStatusChanged: {
+				if (status === VenusOS.EnvironmentInput_Status_Ok) {
+					environmentObjects.hasValidInputs = true
+					return
+				}
+				let foundValid = false
+				for (let i = 0; i < environmentObjects.count; ++i) {
+					const delegate = environmentObjects.objectAt(i)
+					if (delegate && delegate.status === VenusOS.EnvironmentInput_Status_Ok) {
+						foundValid = true
+						break
+					}
+				}
+				environmentObjects.hasValidInputs = foundValid
+			}
+		}
 	}
 
 	TanksTab {

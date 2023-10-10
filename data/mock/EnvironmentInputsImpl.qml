@@ -12,11 +12,11 @@ Item {
 		const inputCount = _rand(1, 8)
 		for (let i = 0; i < inputCount; ++i) {
 			const inputObj = inputComponent.createObject(root, {
-				name: "Sensor " + (i + 1),
 				temperature_celsius: _rand(Theme.geometry.levelsPage.environment.temperatureGauge.minimumValue,
 						Theme.geometry.levelsPage.environment.temperatureGauge.maximumValue),
 				humidity: _rand(Theme.geometry.levelsPage.environment.humidityGauge.minimumValue,
-						Theme.geometry.levelsPage.environment.humidityGauge.maximumValue)
+						Theme.geometry.levelsPage.environment.humidityGauge.maximumValue),
+				status: VenusOS.EnvironmentInput_Status_Ok
 			})
 			Global.environmentInputs.addInput(inputObj)
 		}
@@ -32,6 +32,7 @@ Item {
 		MockDevice {
 			property real temperature_celsius
 			property real humidity
+			property int status: VenusOS.EnvironmentInput_Status_Ok
 
 			name: "EnvironmentInput" + deviceInstance.value
 			Component.onCompleted: deviceInstance.value = root._objectId++
