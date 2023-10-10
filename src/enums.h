@@ -389,18 +389,34 @@ public:
 	Q_ENUM(Firmware_UpdateType)
 
 	enum DigitalInput_Type {
-		DigitalInput_Disabled,
-		DigitalInput_PulseMeter,
-		DigitalInput_DoorAlarm,
-		DigitalInput_BilgePump,
-		DigitalInput_BilgeAlarm,
-		DigitalInput_BurglarAlarm,
-		DigitalInput_SmokeAlarm,
-		DigitalInput_FireAlarm,
-		DigitalInput_CO2Alarm,
-		DigitalInput_Generator
+		DigitalInput_Type_Disabled,
+		DigitalInput_Type_PulseMeter,
+		DigitalInput_Type_DoorAlarm,
+		DigitalInput_Type_BilgePump,
+		DigitalInput_Type_BilgeAlarm,
+		DigitalInput_Type_BurglarAlarm,
+		DigitalInput_Type_SmokeAlarm,
+		DigitalInput_Type_FireAlarm,
+		DigitalInput_Type_CO2Alarm,
+		DigitalInput_Type_Generator
 	};
 	Q_ENUM(DigitalInput_Type)
+
+	enum DigitalInput_Status {
+		DigitalInput_Status_Low,
+		DigitalInput_Status_High,
+		DigitalInput_Status_Off,
+		DigitalInput_Status_On,
+		DigitalInput_Status_No,
+		DigitalInput_Status_Yes,
+		DigitalInput_Status_Open,
+		DigitalInput_Status_Closed,
+		DigitalInput_Status_OK,
+		DigitalInput_Status_Alarm,
+		DigitalInput_Status_Running,
+		DigitalInput_Status_Stopped
+	};
+	Q_ENUM(DigitalInput_Status)
 
 	enum GpsData_Format {
 		GpsData_Format_DegreesMinutesSeconds,
