@@ -23,6 +23,10 @@ QtObject {
 	//% "AC Output"
 	readonly property string ac_output: qsTrId("common_words_ac_output")
 
+	//: Status is 'active'
+	//% "Active"
+	readonly property string active_status: qsTrId("common_words_active")
+
 	//% "Auto"
 	readonly property string auto: qsTrId("common_words_auto")
 
@@ -37,6 +41,10 @@ QtObject {
 
 	//% "Battery voltage"
 	readonly property string battery_voltage: qsTrId("common_words_battery_voltage")
+
+	//: Status is 'closed'
+	//% "Closed"
+	readonly property string closed_status: qsTrId("common_words_closed_status");
 
 	//% "Connected"
 	readonly property string connected: qsTrId("common_words_connected");
@@ -76,6 +84,10 @@ QtObject {
 
 	//% "%1 Hour(s)"
 	readonly property string x_hours: qsTrId("common_words_x_hours")
+
+	//: Status is 'inactive'
+	//% "Inactive"
+	readonly property string inactive_status: qsTrId("common_words_inactive_status")
 
 	//% "Inverter overload"
 	readonly property string inverter_overload: qsTrId("common_words_inverter_overload")
@@ -120,6 +132,10 @@ QtObject {
 	//% "Online"
 	readonly property string online: qsTrId("common_words_online");
 
+	//: Status is 'open'
+	//% "Open"
+	readonly property string open_status: qsTrId("common_words_open_status");
+
 	//% "Password"
 	readonly property string password: qsTrId("common_words_password")
 
@@ -153,6 +169,10 @@ QtObject {
 
 	//% "Reboot"
 	readonly property string reboot: qsTrId("common_words_reboot")
+
+	//: Status is 'running'
+	//% "Running"
+	readonly property string running_status: qsTrId("common_words_running")
 
 	//% "Remove"
 	readonly property string remove: qsTrId("common_words_remove")
@@ -203,8 +223,9 @@ QtObject {
 	//% "Stop after the condition is reached for"
 	readonly property string stop_after_the_condition_is_reached_for: qsTrId("common_words_stop_after_the_condition_is_reached_for")
 
+	//: Status is 'stopped'
 	//% "Stopped"
-	readonly property string stopped: qsTrId("common_words_stopped")
+	readonly property string stopped_status: qsTrId("common_words_stopped")
 
 	//% "Voltage"
 	readonly property string voltage: qsTrId("common_words_voltage")
@@ -230,9 +251,9 @@ QtObject {
 	readonly property string yield_today: qsTrId("common_words_yield_today")
 
 	function onOrOff(value) {
-		if (value === 0) {
+		if (value === 0 || value === false) {
 			return off
-		} else if (value === 1) {
+		} else if (value === 1 || value === true) {
 			return on
 		} else {
 			//% "Unknown"
@@ -241,6 +262,14 @@ QtObject {
 	}
 
 	function yesOrNo(value) {
-		return value === 1 ? yes : no
+		return value === 1 || value === true ? yes : no
+	}
+
+	function enabledOrDisabled(value) {
+		return value === 1 || value === true ? enabled : disabled
+	}
+
+	function activeOrInactive(value) {
+		return value === 1 || value === true ? active_status : inactive_status
 	}
 }

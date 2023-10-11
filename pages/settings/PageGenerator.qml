@@ -63,7 +63,7 @@ Page {
 			//% "Manually started"
 			return qsTrId("settings_manually_started")
 		default:
-			return CommonWords.stopped
+			return CommonWords.stopped_status
 		}
 	}
 

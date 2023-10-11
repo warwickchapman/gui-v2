@@ -27,7 +27,9 @@ ListNavigationItem {
 		if (!optionModel || optionModel.length === undefined || dataSource.length === 0 || !dataValid) {
 			return defaultIndex
 		}
+		console.log(".........currentIndex", currentIndex, dataValue)
 		for (let i = 0; i < optionModel.length; ++i) {
+			console.log("\toptionModel[i].value:", optionModel[i].value)
 			if (optionModel[i].value === dataValue) {
 				return i
 			}
@@ -48,9 +50,11 @@ ListNavigationItem {
 
 	signal optionClicked(index: int)
 
-	secondaryText: currentIndex >= 0 && optionModel.length !== undefined && currentIndex < optionModel.length
+	secondaryText: {
+		return currentIndex >= 0 && optionModel.length !== undefined && currentIndex < optionModel.length
 			? optionModel[currentIndex].display
 			: defaultSecondaryText
+	}
 
 	enabled: userHasReadAccess && (dataSource === "" || dataValid)
 

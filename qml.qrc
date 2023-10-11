@@ -80,6 +80,7 @@
         <file>components/controls/ListItemButton.qml</file>
         <file>components/controls/ProgressBar.qml</file>
         <file>components/controls/RadioButton.qml</file>
+        <file>components/controls/RangeSlider.qml</file>
         <file>components/controls/ScrollBar.qml</file>
         <file>components/controls/Slider.qml</file>
         <file>components/controls/SpinBox.qml</file>
@@ -97,6 +98,7 @@
         <file>components/dialogs/NumberSelectorDialog.qml</file>
         <file>components/dialogs/SolarDailyHistoryDialog.qml</file>
         <file>components/dialogs/TimeSelectorDialog.qml</file>
+        <file>components/listitems/ListAlarmItem.qml</file>
         <file>components/listitems/ListButton.qml</file>
         <file>components/listitems/ListDateSelector.qml</file>
         <file>components/listitems/ListIpAddressField.qml</file>
@@ -108,6 +110,8 @@
         <file>components/listitems/ListRadioButton.qml</file>
         <file>components/listitems/ListRadioButtonGroup.qml</file>
         <file>components/listitems/ListQuantityGroup.qml</file>
+        <file>components/listitems/ListQuantityItem.qml</file>
+        <file>components/listitems/ListRangeSlider.qml</file>
         <file>components/listitems/ListSlider.qml</file>
         <file>components/listitems/ListSpinBox.qml</file>
         <file>components/listitems/ListSwitch.qml</file>
@@ -117,6 +121,7 @@
         <file>components/listitems/ListTimeSelector.qml</file>
         <file>components/settings/CGwacsBatteryScheduleNavigationItem.qml</file>
         <file>components/settings/FirmwareCheckListButton.qml</file>
+        <file>components/settings/Led.qml</file>
         <file>components/settings/ListDvccSwitch.qml</file>
         <file>components/settings/MountStateListButton.qml</file>
         <file>components/settings/SettingsSlider.qml</file>
@@ -336,6 +341,7 @@
         <file>pages/evcs/EvChargerListPage.qml</file>
         <file>pages/evcs/EvChargerPage.qml</file>
         <file>pages/evcs/EvChargerSetupPage.qml</file>
+        <file>pages/settings/devicelist/PageVebus.qml</file>
         <file>pages/settings/DvccCommonSettings.qml</file>
         <file>pages/settings/GeneratorCondition.qml</file>
         <file>pages/settings/IpAddressListView.qml</file>
@@ -404,6 +410,23 @@
         <file>pages/settings/debug/PagePowerDebug.qml</file>
         <file>pages/settings/debug/PageSettingsDemo.qml</file>
         <file>pages/settings/debug/PageSystemData.qml</file>
+        <file>pages/settings/devicelist/DeviceListPage.qml</file>
+        <file>pages/settings/devicelist/battery/BatteryDetails.qml</file>
+        <file>pages/settings/devicelist/battery/FuseInfo.qml</file>
+        <file>pages/settings/devicelist/battery/Page48TlDiagnostics.qml</file>
+        <file>pages/settings/devicelist/battery/PageBattery.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatteryAlarms.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatteryDetails.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatteryHistory.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatteryParameters.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatterySettings.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatterySettingsAlarm.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatterySettingsBattery.qml</file>
+        <file>pages/settings/devicelist/battery/PageBatterySettingsRelay.qml</file>
+        <file>pages/settings/devicelist/battery/PageLynxDistributorList.qml</file>
+        <file>pages/settings/devicelist/battery/PageLynxIonDiagnostics.qml</file>
+        <file>pages/settings/devicelist/battery/PageLynxIonIo.qml</file>
+        <file>pages/settings/devicelist/battery/PageLynxIonSystem.qml</file>
         <file>pages/settings/tz/TzAfricaData.qml</file>
         <file>pages/settings/tz/TzAmericaData.qml</file>
         <file>pages/settings/tz/TzAntarcticaData.qml</file>

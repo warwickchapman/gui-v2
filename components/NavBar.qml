@@ -25,35 +25,36 @@ Rectangle {  // Use an opaque background so that page disappears behind nav bar 
 			id: buttonRepeater
 
 			model: ListModel {
-				ListElement {
-					//% "Brief"
-					text: qsTrId("nav_brief")
-					icon: "qrc:/images/brief.svg"
-					url: "qrc:/pages/BriefPage.qml"
-				}
-				ListElement {
-					//% "Overview"
-					text: qsTrId("nav_overview")
-					icon: "qrc:/images/overview.svg"
-					url: "qrc:/pages/OverviewPage.qml"
-				}
-				ListElement {
-					//% "Levels"
-					text: qsTrId("nav_levels")
-					icon: "qrc:/images/levels.svg"
-					url: "qrc:/pages/LevelsPage.qml"
-				}
-				ListElement {
-					//% "Notifications"
-					text: qsTrId("nav_notifications")
-					icon: "qrc:/images/notifications.svg"
-					url: "qrc:/pages/NotificationsPage.qml"
-				}
+//                ListElement {
+//                    //% "Brief"
+//                    text: qsTrId("nav_brief")
+//                    icon: "qrc:/images/brief.svg"
+//                    url: "qrc:/pages/BriefPage.qml"
+//                }
+//                ListElement {
+//                    //% "Overview"
+//                    text: qsTrId("nav_overview")
+//                    icon: "qrc:/images/overview.svg"
+//                    url: "qrc:/pages/OverviewPage.qml"
+//                }
+//                ListElement {
+//                    //% "Levels"
+//                    text: qsTrId("nav_levels")
+//                    icon: "qrc:/images/levels.svg"
+//                    url: "qrc:/pages/LevelsPage.qml"
+//                }
+//                ListElement {
+//                    //% "Notifications"
+//                    text: qsTrId("nav_notifications")
+//                    icon: "qrc:/images/notifications.svg"
+//                    url: "qrc:/pages/NotificationsPage.qml"
+//                }
 				ListElement {
 					//% "Settings"
 					text: qsTrId("nav_settings")
 					icon: "qrc:/images/settings.png"
-					url: "qrc:/pages/SettingsPage.qml"
+//                    url: "qrc:/pages/SettingsPage.qml"
+					url: "qrc:/pages/settings/devicelist/DeviceListPage.qml"
 				}
 			}
 

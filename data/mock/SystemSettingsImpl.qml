@@ -60,6 +60,10 @@ QtObject {
 		Global.mockDataSimulator.mockDataValues["com.victronenergy.solarcharger.ttyUSB1" + key] = value
 	}
 
+	function setMockBatteryValue(key, value) {
+		Global.mockDataSimulator.mockDataValues["com.victronenergy.mock-battery" + key] = value
+	}
+
 	Component.onCompleted: {
 		// Settings that are converted for convenient UI access
 		Global.systemSettings.accessLevel.setValue(VenusOS.User_AccessType_Service)
@@ -287,8 +291,11 @@ QtObject {
 		// Solar charger
 		setMockSolarChargerValue("/Link/NetworkStatus", 1)
 		setMockSolarChargerValue("/Settings/BmsPresent", 1)
-		setMockSolarChargerValue("/Alarms/LowVoltage", VenusOS.SolarCharger_AlarmType_Warning)
-		setMockSolarChargerValue("/Alarms/HighVoltage", VenusOS.SolarCharger_AlarmType_OK)
+		setMockSolarChargerValue("/Alarms/LowVoltage", VenusOS.Alarm_Level_Warning)
+		setMockSolarChargerValue("/Alarms/HighVoltage", VenusOS.Alarm_Level_OK)
+
+		// Dummy battery
+		setMockBatteryValue("/Mode", 3)
 
 		ClockTime.setClockTime(new Date().getTime() / 1000)
 	}

@@ -86,7 +86,7 @@ Rectangle {
 
 		text: Global.systemSettings.temperatureUnit.value === VenusOS.Units_Temperature_Fahrenheit ? "F" : "C"
 		value: Math.round(root.temperature)
-		unit: Global.systemSettings.temperatureUnit.value
+		unit: Global.systemSettings.temperatureUnit.value === undefined ? VenusOS.Units_None : Global.systemSettings.temperatureUnit.value
 
 		// TODO min, max and highlight need to come from dbus backend, but not yet available.
 		minimumValue: Global.systemSettings.temperatureUnit.value === VenusOS.Units_Temperature_Celsius

@@ -96,6 +96,35 @@ function celsiusToFahrenheit(celsius) {
 	return isNaN(celsius) ? celsius: (celsius * 9/5) + 32
 }
 
+function fromKelvin(value, toUnit) {
+	if (toUnit === V.VenusOS.Units_Temperature_Kelvin) {
+		return value
+	}
+	const celsiusValue = value - 273.15
+	if (toUnit === V.VenusOS.Units_Temperature_Celsius) {
+		return celsiusValue
+	}
+	if (toUnit === V.VenusOS.Units_Temperature_Fahrenheit) {
+		return celsiusToFahrenheit(celsiusValue)
+	}
+	console.warn("Invalid temperature unit:", toUnit)
+	return value
+}
+
+function toKelvin(value, fromUnit) {
+	if (fromUnit === V.VenusOS.Units_Temperature_Kelvin) {
+		return value
+	}
+	if (fromUnit === V.VenusOS.Units_Temperature_Celsius) {
+		return value + 273.15
+	}
+	if (fromUnit === V.VenusOS.Units_Temperature_Fahrenheit) {
+		return (value + 459.67) * 5/9
+	}
+	console.warn("Invalid temperature unit:", fromUnit)
+	return value
+}
+
 function convertVolumeForUnit(value_m3, toUnit) {
 	if (toUnit === V.VenusOS.Units_Volume_CubicMeter) {
 		return value_m3

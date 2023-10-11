@@ -37,10 +37,6 @@ Device {
 		uid: inverter.serviceUid + "/State"
 	}
 
-	readonly property VeQuickItem _productId: VeQuickItem {
-		uid: inverter.serviceUid + "/ProductId"
-	}
-
 	readonly property VeQuickItem _nominalInverterPower: VeQuickItem {
 		uid: inverter.serviceUid + "/Ac/Out/NominalInverterPower"
 		onValueChanged: if (!!Global.inverters) Global.inverters.refreshNominalInverterPower()

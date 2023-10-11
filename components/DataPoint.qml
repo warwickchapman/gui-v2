@@ -58,6 +58,7 @@ QtObject {
 		QtObject {
 			property string source: root.source
 			property var value: Global.mockDataSimulator ? Global.mockDataSimulator.mockDataValues[source] : undefined
+
 			property real min: 0
 			property real max: 100
 			property bool invalidate: root.invalidate

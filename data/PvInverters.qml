@@ -49,8 +49,7 @@ QtObject {
 			//% "Startup 6"
 			return qsTrId("pvinverters_statusCode_startup_6")
 		case VenusOS.PvInverter_StatusCode_Running:
-			//% "Running"
-			return qsTrId("pvinverters_statusCode_running")
+			return CommonWords.running_status
 		case VenusOS.PvInverter_StatusCode_Standby:
 			//% "Standby"
 			return qsTrId("pvinverters_statusCode_standby")

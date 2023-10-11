@@ -25,6 +25,13 @@ public:
 
 	static QObject* instance(QQmlEngine *engine, QJSEngine *);
 
+	enum Alarm_Level {
+		Alarm_Level_OK,
+		Alarm_Level_Warning,
+		Alarm_Level_Alarm
+	};
+	Q_ENUM(Alarm_Level)
+
 	enum AsymmetricRoundedRectangle_RoundedSide {
 		AsymmetricRoundedRectangle_RoundedSide_All,    // allow all sides to be rounded, show all borders
 		AsymmetricRoundedRectangle_RoundedSide_Left,   // round left, hide right border
@@ -79,6 +86,7 @@ public:
 		Units_Energy_KiloWattHour,
 		Units_Temperature_Celsius,
 		Units_Temperature_Fahrenheit,
+		Units_Temperature_Kelvin,
 
 		Units_None = 1000
 	};
@@ -453,13 +461,6 @@ public:
 		SolarCharger_State_ExternalControl = 252,
 	};
 	Q_ENUM(SolarCharger_State)
-
-	enum SolarCharger_AlarmType {
-		SolarCharger_AlarmType_OK,
-		SolarCharger_AlarmType_Warning,
-		SolarCharger_AlarmType_Alarm
-	};
-	Q_ENUM(SolarCharger_AlarmType)
 
 	enum SolarCharger_NetworkStatus {
 		SolarCharger_NetworkStatus_Slave,

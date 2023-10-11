@@ -18,7 +18,7 @@ QtObject {
 		readonly property string icon: Global.batteries.batteryIcon(dummyBattery)
 		readonly property int mode: Global.batteries.batteryMode(dummyBattery)
 
-		name: "Fake battery"
+		name: "battery"
 
 		Component.onCompleted: {
 			Global.batteries.addBattery(dummyBattery)

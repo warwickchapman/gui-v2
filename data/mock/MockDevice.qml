@@ -8,7 +8,7 @@ import Victron.Veutil
 QtObject {
 	id: root
 
-	readonly property string serviceUid: "MockDevice-" + name
+	readonly property string serviceUid: "com.victronenergy.mock-" + name
 	property var deviceInstance: QtObject {
 		property int value
 
