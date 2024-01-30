@@ -121,7 +121,7 @@ Page {
 				Instantiator {
 					model: languageModel
 					delegate: FontLoader {
-						source: model.fontFileName
+						source: model.fontFileUrl
 					}
 				}
 
