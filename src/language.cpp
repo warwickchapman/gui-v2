@@ -63,7 +63,7 @@ QUrl filePathToUrl(const QString &path)
 
 	if (path.startsWith(':')) {
 		// Convert to QML-friendly "qrc:/" resource path.
-		return QUrl(QStringLiteral("qrc/%1").arg(path));
+		return QUrl(QStringLiteral("qrc%1").arg(path));
 	}
 
 	return QUrl::fromLocalFile(path);
