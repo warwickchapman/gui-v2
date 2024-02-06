@@ -29,7 +29,7 @@ Rectangle {
 		display: C.AbstractButton.TextBesideIcon
 		icon.color: Theme.color_font_primary
 
-		font.family: Language.fontFamily
+		font.family: Global.fontLoader.name
 		font.pixelSize: Theme.font_size_body1
 		color: Theme.color_font_primary
 	}

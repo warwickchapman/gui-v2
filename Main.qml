@@ -182,6 +182,12 @@ Window {
 				}
 			}
 		}
+
+		VenusFontLoader {
+			id: fontLoader
+
+			Component.onCompleted: Global.fontLoader = fontLoader
+		}
 	}
 
 	FrameRateVisualizer {}

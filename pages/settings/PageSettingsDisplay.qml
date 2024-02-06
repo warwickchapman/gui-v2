@@ -122,6 +122,11 @@ Page {
 					model: languageModel
 					delegate: FontLoader {
 						source: model.fontFileUrl
+						onStatusChanged: {
+							if (status === FontLoader.Ready) {
+								languageModel.setFontFamily(source, name)
+							}
+						}
 					}
 				}
 
