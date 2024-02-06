@@ -29,7 +29,7 @@ QUrl fontUrlForLanguage(QLocale::Language language)
 	// On wasm, the server contains symlinks to the required font files in the root dir.
 	QString fileName = fontFileNames.value(language);
 	if (!fileName.isEmpty()) {
-		return QUrl("http://127.0.0.1/" + fileName);
+		return QUrl(fileName);
 	}
 #elif not defined(VENUS_DESKTOP_BUILD)
 	// On device, look for the system-installed font files.
