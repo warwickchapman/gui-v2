@@ -8,4 +8,5 @@ import Victron.VenusOS
 
 FontLoader {
 	source: Language.fontFileUrl
+	onStatusChanged: console.log("Font status:", status)
 }

@@ -23,41 +23,41 @@ Page {
 		id: settingsListView
 
 		model: [
-			{
-				//% "Device List"
-				text: qsTrId("settings_device_list"),
-				page: "/pages/settings/devicelist/DeviceListPage.qml",
-			},
-			{
-				//% "General"
-				text: qsTrId("settings_general"),
-				page: "/pages/settings/PageSettingsGeneral.qml"
-			},
-			{
-				//% "Firmware"
-				text: qsTrId("settings_firmware"),
-				page: "/pages/settings/PageSettingsFirmware.qml"
-			},
-			{
-				//% "Date & Time"
-				text: qsTrId("settings_date_and_time"),
-				page: "/pages/settings/PageTzInfo.qml"
-			},
-			{
-				//% "Remote Console"
-				text: qsTrId("settings_remote_console"),
-				page: "/pages/settings/PageSettingsRemoteConsole.qml"
-			},
-			{
-				//% "System setup"
-				text: qsTrId("settings_system_setup"),
-				page: "/pages/settings/PageSettingsSystem.qml"
-			},
-			{
-				//% "DVCC"
-				text: qsTrId("settings_system_dvcc"),
-				page: "/pages/settings/PageSettingsDvcc.qml"
-			},
+//            {
+//                //% "Device List"
+//                text: qsTrId("settings_device_list"),
+//                page: "/pages/settings/devicelist/DeviceListPage.qml",
+//            },
+//            {
+//                //% "General"
+//                text: qsTrId("settings_general"),
+//                page: "/pages/settings/PageSettingsGeneral.qml"
+//            },
+//            {
+//                //% "Firmware"
+//                text: qsTrId("settings_firmware"),
+//                page: "/pages/settings/PageSettingsFirmware.qml"
+//            },
+//            {
+//                //% "Date & Time"
+//                text: qsTrId("settings_date_and_time"),
+//                page: "/pages/settings/PageTzInfo.qml"
+//            },
+//            {
+//                //% "Remote Console"
+//                text: qsTrId("settings_remote_console"),
+//                page: "/pages/settings/PageSettingsRemoteConsole.qml"
+//            },
+//            {
+//                //% "System setup"
+//                text: qsTrId("settings_system_setup"),
+//                page: "/pages/settings/PageSettingsSystem.qml"
+//            },
+//            {
+//                //% "DVCC"
+//                text: qsTrId("settings_system_dvcc"),
+//                page: "/pages/settings/PageSettingsDvcc.qml"
+//            },
 			{
 				//% "Display & Language"
 				text: qsTrId("settings_display_and_language"),
