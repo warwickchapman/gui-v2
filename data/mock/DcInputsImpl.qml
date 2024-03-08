@@ -9,16 +9,17 @@ import Victron.VenusOS
 QtObject {
 	id: root
 
+	property int mockDeviceCount
+	property var _createdObjects: []
+
 	function populate() {
 		// Add a random set of DC inputs.
 		// Have 2 inputs at most, to leave some space for AC inputs in overview page
 		const serviceTypes = ["alternator", "fuelcell", "dcsource"]
 		const modelCount = Math.floor(Math.random() * 2) + 1
 		for (let i = 0; i < modelCount; ++i) {
-			const type = Math.floor(Math.random() * serviceTypes.length)
-			const input = inputComponent.createObject(root, { "serviceType": serviceTypes[i] })
-			_createdObjects.push(input)
-			Global.dcInputs.addInput(input)
+			const typeIndex = Math.floor(Math.random() * serviceTypes.length)
+			createInput({ serviceType: serviceTypes[typeIndex]})
 		}
 	}
 
@@ -33,30 +34,41 @@ QtObject {
 
 			if (config) {
 				for (let i = 0; i < config.types.length; ++i) {
-					const inputConfig = config.types[i]
-					const input = inputComponent.createObject(root, {
-						serviceType: inputConfig.serviceType,
-						monitorMode: inputConfig.monitorMode
-					})
-					_createdObjects.push(input)
-					Global.dcInputs.addInput(input)
+					let inputConfig = config.types[i]
+					if (inputConfig) {
+						createInput(inputConfig)
+					}
 				}
 			}
 		}
 	}
 
+	function createInput(props) {
+		if (!props.serviceType) {
+			console.warn("Cannot create mock DC device without service type! Properties are:", JSON.stringify(props))
+			return
+		}
+		const input = inputComponent.createObject(root, { serviceType: props.serviceType })
+		for (let name in props) {
+			if (name !== "serviceType") {
+				input["_" + name].setValue(props[name])
+			}
+		}
+		if (props.serviceType === "alternator" && props.productId === undefined) {
+			// Set a generic product id so that PageAlternator can show a valid page.
+			input._productId.setValue(0xB091)
+		}
+		_createdObjects.push(input)
+	}
+
 	property Component inputComponent: Component {
-		MockDevice {
+		DcInput {
 			id: input
 
-			readonly property int inputType: Global.dcInputs.inputType(serviceUid, monitorMode)
 			property string serviceType
-			property int monitorMode: -1    // generic DC source
 
-			property real voltage
-			property real current
-			property real power: (isNaN(voltage) || isNaN(current) || voltage === 0) ? NaN : voltage * current
-			property real temperature
+			// Set a non-empty uid to avoid bindings to empty serviceUid before Component.onCompleted is called
+			serviceUid: "mock/com.victronenergy.dummy"
 
 			property Timer _dummyValues: Timer {
 				running: Global.mockDataSimulator.timersActive
@@ -65,12 +77,14 @@ QtObject {
 				triggeredOnStart: true
 
 				onTriggered: {
-					let properties = ["voltage", "current", "temperature"]
+					let properties = ["power", "voltage", "current", "temperature"]
 					for (let propIndex = 0; propIndex < properties.length; ++propIndex) {
 						let propTotal = 0
 						const propName = properties[propIndex]
 						let value = 0
-						if (propName === "voltage") {
+						if (propName === "power") {
+							value = 50 + Math.random() * 10
+						} else if (propName === "voltage") {
 							value = 20 + Math.random() * 10
 						} else if (propName === "current") {
 							value = 1 + Math.random()
@@ -79,19 +93,53 @@ QtObject {
 						} else {
 							console.warn("Unhandled property", propName)
 						}
-
-						input[propName] = value
+						input["_" + propName].setValue(value)
 					}
-					Global.dcInputs.updateTotals()
 				}
 			}
 
-			serviceUid: "mock/com.victronenergy." + serviceType + ".ttyUSB" + deviceInstance
-			name: "DCInput" + deviceInstance
+			property VeQuickItem _productId: VeQuickItem {
+				uid: input.serviceUid + "/ProductId"
+				onValueChanged: {
+					if (value === 0xA3F0) {
+						initOrionXSValues()
+					}
+				}
+			}
+
+			function setMockValue(key, value) {
+				Global.mockDataSimulator.setMockValue(serviceUid + key, value)
+			}
+
+			function initOrionXSValues() {
+				setMockValue("/Mode", 1)
+				setMockValue("/State", 1)
+
+				setMockValue("/History/Cumulative/User/OperationTime", 60)  // seconds
+				setMockValue("/History/Cumulative/User/ChargedAh", 100)
+				setMockValue("/History/Cumulative/User/CyclesStarted", 3)
+				setMockValue("/History/Cumulative/User/CyclesCompleted", 2)
+				setMockValue("/History/Cumulative/User/NrOfPowerups", 50)
+				setMockValue("/History/Cumulative/User/NrOfDeepDischarges", 5)
+				setMockValue("/History/Cycle/CyclesAvailable", 1)
+
+				setMockValue("/History/Cycle/TerminationReason", 7)
+				setMockValue("/History/Cycle/BulkTime", 2 * 60)
+				setMockValue("/History/Cycle/BulkCharge", 30)
+				setMockValue("/History/Cycle/AbsorptionCharge", 40)
+				setMockValue("/History/Cycle/StartVoltage", 10.5)
+				setMockValue("/History/Cycle/EndVoltage", 20.25)
+				setMockValue("/History/Cycle/Error", 1)
+			}
+
+			Component.onCompleted: {
+				const deviceInstanceNum = root.mockDeviceCount++
+				serviceUid = "mock/com.victronenergy." + serviceType + ".ttyUSB" + deviceInstanceNum
+				_deviceInstance.setValue(deviceInstanceNum)
+				_productName.setValue("DC Input Product: " + serviceType)
+			}
 		}
 	}
-
-	property var _createdObjects: []
 
 	Component.onCompleted: {
 		populate()

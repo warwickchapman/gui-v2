@@ -302,6 +302,9 @@ QtObject {
 	//% "Open"
 	readonly property string open_status: qsTrId("common_words_open_status");
 
+	//% "Overall history"
+	readonly property string overall_history: qsTrId("common_words_overall_history")
+
 	//% "Password"
 	readonly property string password: qsTrId("common_words_password")
 
