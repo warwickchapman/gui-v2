@@ -258,30 +258,27 @@ SwipeViewPage {
 		// Add DC widgets
 		let i
 		for (i = 0; i < Global.dcInputs.model.count; ++i) {
-			const dcInput = Global.dcInputs.model.deviceAt(i)
-			switch (dcInput.inputType) {
-			case VenusOS.DcInputs_InputType_Alternator:
-				widgetType = VenusOS.OverviewWidget_Type_Alternator
-				break
-			case VenusOS.DcInputs_InputType_FuelCell:
-				widgetType = VenusOS.OverviewWidget_Type_FuelCell
-				break
-			case VenusOS.DcInputs_InputType_Wind:
-				widgetType = VenusOS.OverviewWidget_Type_Wind
-				break
-			default:
-				// Use DC Generator as the catch-all type for any DC power source that isn't
-				// specifically handled.
-				widgetType = VenusOS.OverviewWidget_Type_DcGenerator
-				break
+			// Clear the inputs list for this DC input type
+			widgetType = _dcWidgetForInputType(Global.dcInputs.model.deviceAt(i).inputType)
+			if (widgetType >= 0) {
+				widget = _createWidget(widgetType)
+				widget.inputs.clear()
 			}
+		}
+		for (i = 0; i < Global.dcInputs.model.count; ++i) {
+			// Add the input to the DC widget
+			const dcInput = Global.dcInputs.model.deviceAt(i)
+			widgetType = _dcWidgetForInputType(dcInput.inputType)
 			if (widgetType < 0) {
 				console.warn("Unknown DC input type:", dcInput.inputType)
 				return
 			}
 			widget = _createWidget(widgetType)
-			widget.input = dcInput
-			widgetCandidates.splice(_leftWidgetInsertionIndex(widgetType, widgetCandidates), 0, widget)
+			widget.inputs.addDevice(dcInput)
+			if (widgetCandidates.indexOf(widget) < 0) {
+				// Only show one widget for each DC input type.
+				widgetCandidates.splice(_leftWidgetInsertionIndex(widgetType, widgetCandidates), 0, widget)
+			}
 		}
 
 		// Add solar widget
@@ -290,6 +287,21 @@ SwipeViewPage {
 					0, _createWidget(VenusOS.OverviewWidget_Type_Solar))
 		}
 		_leftWidgets = widgetCandidates
+	}
+
+	function _dcWidgetForInputType(dcInputType) {
+		switch (dcInputType) {
+		case VenusOS.DcInputs_InputType_Alternator:
+			return VenusOS.OverviewWidget_Type_Alternator
+		case VenusOS.DcInputs_InputType_FuelCell:
+			return VenusOS.OverviewWidget_Type_FuelCell
+		case VenusOS.DcInputs_InputType_Wind:
+			return VenusOS.OverviewWidget_Type_Wind
+		default:
+			// Use DC Generator as the catch-all type for any DC power source that isn't
+			// specifically handled.
+			return VenusOS.OverviewWidget_Type_DcGenerator
+		}
 	}
 
 	function _leftWidgetInsertionIndex(widgetType, candidateArray) {
@@ -327,10 +339,9 @@ SwipeViewPage {
 			return VenusOS.WidgetConnector_AnimationMode_NotAnimated
 		}
 		// Assumes startWidget is the AC/DC input widget.
-		if (!connectorWidget.startWidget.input) {
-			return VenusOS.WidgetConnector_AnimationMode_NotAnimated
-		}
-		const power = connectorWidget.startWidget.input.power
+		// Use the displayed power to calculate whether the connector should be animated.
+		const power = !connectorWidget.startWidget.quantityLabel.dataObject ? NaN
+				: connectorWidget.startWidget.quantityLabel.dataObject.power
 		if (isNaN(power) || Math.abs(power) <= Theme.geometry_overviewPage_connector_animationPowerThreshold) {
 			return VenusOS.WidgetConnector_AnimationMode_NotAnimated
 		}
