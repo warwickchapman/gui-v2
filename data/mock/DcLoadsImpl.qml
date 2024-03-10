@@ -14,7 +14,7 @@ QtObject {
 
 	function populate() {
 		// Add all known types of DC loads.
-		const serviceTypes = ["dcload", "dcsystem"]
+		const serviceTypes = ["dcload", "dcsystem", "dcdc"]
 		for (let i = 0; i < serviceTypes.length; ++i) {
 			createDcLoad({ serviceType: serviceTypes[i]})
 		}

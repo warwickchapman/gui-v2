@@ -255,28 +255,20 @@ SwipeViewPage {
 			}
 		}
 
-		// Add DC widgets
-		let i
-		for (i = 0; i < Global.dcInputs.model.count; ++i) {
-			// Clear the inputs list for this DC input type
-			widgetType = _dcWidgetForInputType(Global.dcInputs.model.deviceAt(i).inputType)
-			if (widgetType >= 0) {
-				widget = _createWidget(widgetType)
-				widget.inputs.clear()
-			}
-		}
-		for (i = 0; i < Global.dcInputs.model.count; ++i) {
-			// Add the input to the DC widget
+		// Add DC widgets. Only one widget is shown per DC device type, even if there are multiple
+		// inputs for that type.
+		let clearedDcWidgets = []
+		for (let i = 0; i < Global.dcInputs.model.count; ++i) {
 			const dcInput = Global.dcInputs.model.deviceAt(i)
-			widgetType = _dcWidgetForInputType(dcInput.inputType)
-			if (widgetType < 0) {
-				console.warn("Unknown DC input type:", dcInput.inputType)
-				return
-			}
+			widgetType = _dcWidgetTypeForInputType(dcInput.inputType)
 			widget = _createWidget(widgetType)
+			if (clearedDcWidgets.indexOf(widget) < 0) {
+				// Ensure the inputs list starts in an empty state before any DC inputs are added.
+				widget.inputs.clear()
+				clearedDcWidgets.push(widget)
+			}
 			widget.inputs.addDevice(dcInput)
 			if (widgetCandidates.indexOf(widget) < 0) {
-				// Only show one widget for each DC input type.
 				widgetCandidates.splice(_leftWidgetInsertionIndex(widgetType, widgetCandidates), 0, widget)
 			}
 		}
@@ -289,7 +281,7 @@ SwipeViewPage {
 		_leftWidgets = widgetCandidates
 	}
 
-	function _dcWidgetForInputType(dcInputType) {
+	function _dcWidgetTypeForInputType(dcInputType) {
 		switch (dcInputType) {
 		case VenusOS.DcInputs_InputType_Alternator:
 			return VenusOS.OverviewWidget_Type_Alternator
