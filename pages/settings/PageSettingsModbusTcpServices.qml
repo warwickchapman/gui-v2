@@ -60,7 +60,7 @@ Page {
 
 			VeQuickItem {
 				id: productName
-				uid: serviceName.value ? serviceName.value + "/ProductName" : ""
+				uid: serviceName.isValid ? "%1/%2/ProductName".arg(BackendConnection.uidPrefix()).arg(serviceName.value) : ""
 			}
 
 			VeQuickItem {
