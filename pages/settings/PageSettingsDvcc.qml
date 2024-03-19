@@ -193,12 +193,12 @@ Page {
 
 				VeQuickItem {
 					id: bmsProductName
-					uid: bmsService.isValid ? bmsService.value + "/ProductName" : ""
+					uid: bmsService.isValid ? "%1/%2/ProductName".arg(BackendConnection.uidPrefix()).arg(bmsService.value) : ""
 				}
 
 				VeQuickItem {
 					id: bmsCustomName
-					uid: bmsService.isValid ? bmsService.value + "/CustomName" : ""
+					uid: bmsService.isValid ? "%1/%2/CustomName".arg(BackendConnection.uidPrefix()).arg(bmsService.value) : ""
 				}
 			}
 		}
