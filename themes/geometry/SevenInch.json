@@ -169,7 +169,8 @@
     "geometry_briefPage_edgeGauge_spacing": 44,
     "geometry_briefPage_edgeGauge_spacingAngle": 4,
     "geometry_briefPage_edgeGauge_quantityLabel_spacing": 2,
-    "geometry_briefPage_largeEdgeGauge_height": 460,
+    "geometry_briefPage_edgeGauge_quantityLabel_horizontalMargin": 44,
+    "geometry_briefPage_largeEdgeGauge_height": 400,
     "geometry_briefPage_largeEdgeGauge_maxAngle": 51,
     "geometry_briefPage_solarHistoryGauge_maximumGaugeCount": 3,
 
@@ -189,8 +190,6 @@
     "geometry_briefPage_sidePanel_loadGraph_width": 144,
     "geometry_briefPage_sidePanel_loadGraph_height": 51,
     "geometry_briefPage_sidePanel_loadGraph_horizontalGradient_width": 10,
-
-    "geometry_loadMiniGauge_label_rightMargin": 34,
 
     "geometry_quantityLabel_spacing": 2,
     "geometry_quantityLabel_bottomMargin": 2,
