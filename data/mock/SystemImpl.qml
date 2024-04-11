@@ -11,7 +11,7 @@ QtObject {
 
 	function populate() {
 		Global.system.state = VenusOS.System_State_AbsorptionCharging
-		Global.system.ac.consumption.setPhaseCount(_phaseCount)
+		Global.system.ac.consumption.setPhaseCount(3)
 	}
 
 	property Connections mockConn: Connections {
@@ -25,6 +25,7 @@ QtObject {
 
 				if (config.ac) {
 					randomizeAcValues.running = true
+					Global.system.ac.consumption.setPhaseCount(config.ac.phaseCount || 3)
 				} else {
 					randomizeAcValues.running = false
 					Global.system.ac.consumption.setPhaseCount(0)
@@ -42,8 +43,6 @@ QtObject {
 
 	//--- AC data ---
 
-	readonly property int _phaseCount: 3
-
 	property Timer randomizeAcValues: Timer {
 		running: Global.mockDataSimulator.timersActive
 		interval: 2000
@@ -52,7 +51,7 @@ QtObject {
 
 		onTriggered: {
 			// Use some wild fluctuations that can be seen in the Brief side panel graph
-			const randomIndex = Math.floor(Math.random() * root._phaseCount)
+			const randomIndex = Math.floor(Math.random() * Global.system.ac.consumption.phases.count)
 			const power = Math.floor(Math.random() * 800)
 			Global.system.ac.consumption.setPhaseData(randomIndex, { power: power, current: power * 0.01})
 		}
