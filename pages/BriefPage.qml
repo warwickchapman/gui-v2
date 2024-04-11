@@ -27,12 +27,6 @@ SwipeViewPage {
 		return "qrc:/images/icon_input_24.svg"
 	}
 
-	readonly property int _leftGaugeCount: (acInputGauge.active ? 1 : 0) + (dcInputGauge.active ? 1 : 0) + (solarYieldGauge.active ? 1 : 0)
-	readonly property real _leftGaugeHeight: Theme.geometry_briefPage_largeEdgeGauge_height / _leftGaugeCount
-
-	readonly property int _rightGaugeCount: (acLoadGauge.active ? 1 : 0) + (dcLoadGauge.active ? 1 : 0)
-	readonly property real _rightGaugeHeight: Theme.geometry_briefPage_largeEdgeGauge_height / _rightGaugeCount
-
 	/*
 	  Returns the start/end angles for the gauge at the specified activeGaugeIndex, where the index
 	  indicates the gauge's index (in a clockwise direction) within the active gauges for the left
@@ -41,7 +35,7 @@ SwipeViewPage {
 	  since it is the second gauge when listing the left gauges in a clockwise direction. If the
 	  solar gauge was not active, the index would be 0 instead.
 	*/
-	function _sideGaugeParameters(baseAngle, activeGaugeCount, activeGaugeIndex) {
+	function sideGaugeParameters(baseAngle, activeGaugeCount, activeGaugeIndex) {
 		// Start/end angles are those for the large single-gauge case if there is only one gauge,
 		// otherwise this angle is split into equal segments for each active gauge (minus spacing).
 		let maxSideAngle
@@ -56,49 +50,46 @@ SwipeViewPage {
 		}
 		const gaugeStartAngle = baseAngle + (activeGaugeIndex * maxSideAngle) + baseAngleOffset
 		const gaugeEndAngle = gaugeStartAngle + maxSideAngle
-		return { start: gaugeStartAngle, end: gaugeEndAngle }
+
+		// Gauge height is the height for the single-gauge case, split into equal segments for each
+		// active gauge.
+		let gaugeHeight
+		if (activeGaugeCount === 1) {
+			gaugeHeight = Theme.geometry_briefPage_largeEdgeGauge_height
+		} else {
+			const totalSpacing = Theme.geometry_briefPage_edgeGauge_spacing * (activeGaugeCount - 1)
+			gaugeHeight = (Theme.geometry_briefPage_largeEdgeGauge_height - totalSpacing) / activeGaugeCount
+		}
+
+		return { start: gaugeStartAngle, end: gaugeEndAngle, height: gaugeHeight }
 	}
 
-	function _leftGaugeParameters(gauge) {
+	function leftGaugeParameters(gauge) {
 		// In a clockwise direction, the gauges start from the solar gauge and go upwards to the AC
 		// input gauge.
 		const baseAngle = 270 - (Theme.geometry_briefPage_largeEdgeGauge_maxAngle / 2)
-		let gaugeIndex = 0  // solar yield gauge has index=0
-		if (gauge === dcInputGauge) {
-			gaugeIndex = solarYieldGauge.active ? 1 : 0
-		} else if (gauge === acInputGauge) {
-			gaugeIndex = (solarYieldGauge.active ? 1 : 0) + (dcInputGauge.active ? 1 : 0)
-		}
-		const params = _sideGaugeParameters(baseAngle, _leftGaugeCount, gaugeIndex)
+		const activeGaugeCount = (acInputGauge.active ? 1 : 0) + (solarYieldGauge.active ? 1 : 0)
+		const gaugeIndex = gauge === solarYieldGauge ? 0 : (solarYieldGauge.active ? 1 : 0)
+		const params = sideGaugeParameters(baseAngle, activeGaugeCount, gaugeIndex)
 
-		// Add y offset if gauge is aligned to the top or bottom.
-		let arcVerticalCenterOffset = 0
-		if (_leftGaugeCount === 2) {
-			arcVerticalCenterOffset = gaugeIndex === 0 ? -(_leftGaugeHeight / 2) : _leftGaugeHeight / 2
-		} else if (_leftGaugeCount === 3) {
-			// The second (center) gauge does not need an offset, as it will be vertically centered.
-			if (gaugeIndex === 0) {
-				arcVerticalCenterOffset = -_leftGaugeHeight
-			} else if (gaugeIndex === 2) {
-				arcVerticalCenterOffset = _leftGaugeHeight
-			}
-		}
-		return Object.assign(params, { arcVerticalCenterOffset: arcVerticalCenterOffset })
+		const verticalAlignment = activeGaugeCount === 1
+				? Qt.AlignVCenter
+				: (gaugeIndex === 0 ? Qt.AlignBottom : Qt.AlignTop)
+		return Object.assign(params, { alignment: Qt.AlignLeft | verticalAlignment })
 	}
 
-	function _rightGaugeParameters(gauge) {
+	function rightGaugeParameters(gauge) {
 		// In a clockwise direction, the gauges start from the AC load gauge and go downwards to the
 		// DC load gauge.
+		const activeGaugeCount = (acLoadGauge.active ? 1 : 0) + (dcLoadGauge.active ? 1 : 0)
 		const baseAngle = 90 - (Theme.geometry_briefPage_largeEdgeGauge_maxAngle / 2)
 		const gaugeIndex = gauge === acLoadGauge ? 0 : (acLoadGauge.active ? 1 : 0)
-		const params = _sideGaugeParameters(baseAngle, _rightGaugeCount, gaugeIndex)
+		const params = sideGaugeParameters(baseAngle, activeGaugeCount, gaugeIndex)
 
-		// Add y offset if gauge is aligned to the top or bottom.
-		let arcVerticalCenterOffset = 0
-		if (_rightGaugeCount === 2) {
-			arcVerticalCenterOffset = gaugeIndex === 0 ? _rightGaugeHeight / 2 : -(_rightGaugeHeight / 2)
-		}
-		return Object.assign(params, { arcVerticalCenterOffset: arcVerticalCenterOffset })
+		const verticalAlignment = activeGaugeCount === 1
+				? Qt.AlignVCenter
+				: (gaugeIndex === 0 ? Qt.AlignTop : Qt.AlignBottom)
+		return Object.assign(params, { alignment: Qt.AlignRight | verticalAlignment })
 	}
 
 	backgroundColor: Theme.color_briefPage_background
@@ -153,227 +144,192 @@ SwipeViewPage {
 		}
 	}
 
-	// Left gauge column
-	Column {
+	Loader {
+		id: acInputGauge
+
 		anchors {
 			verticalCenter: mainGauge.verticalCenter
+			verticalCenterOffset: solarYieldGauge.active ? -(height / 2) : 0
 			left: parent.left
 			leftMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
+			right: mainGauge.left
 		}
-		width: Theme.geometry_briefPage_edgeGauge_width
+		active: !!Global.acInputs.activeInput || Global.dcInputs.model.count > 0
+		sourceComponent: SideGauge {
+			readonly property var gaugeParams: root.leftGaugeParameters(acInputGauge)
 
-		Loader {
-			id: acInputGauge
+			// AC input gauge progresses in clockwise direction (i.e. upwards).
+			direction: PathArc.Clockwise
+			startAngle: gaugeParams.start || 0
+			endAngle: gaugeParams.end || 0
+			height: gaugeParams.height || 0
+			alignment: gaugeParams.alignment || 0
 
-			width: Theme.geometry_briefPage_edgeGauge_width
-			height: active ? root._leftGaugeHeight : 0
-			active: !!Global.acInputs.activeInput
-			sourceComponent: SideGauge {
-				readonly property var gaugeParams: root._leftGaugeParameters(acInputGauge)
+			x: root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
+			animationEnabled: root.animationEnabled
+			value: !visible ? 0 : inputsRange.valueAsRatio * 100
 
-				// AC input gauge progresses in clockwise direction (i.e. upwards).
-				direction: PathArc.Clockwise
-				startAngle: gaugeParams.start || 0
-				endAngle: gaugeParams.end || 0
-				arcVerticalCenterOffset: gaugeParams.arcVerticalCenterOffset || 0
-				horizontalAlignment: Qt.AlignLeft
+			// Gauge color changes only apply when there is a maximum value.
+			valueType: isNaN(inputsRange.maximumValue)
+					   ? VenusOS.Gauges_ValueType_NeutralPercentage
+					   : VenusOS.Gauges_ValueType_RisingPercentage
 
-				x: root._gaugeArcMargin
-				opacity: root._gaugeArcOpacity
-				animationEnabled: root.animationEnabled
-				value: !visible ? 0 : acInputRange.valueAsRatio * 100
+			AcInGaugeQuantityRow {
+				id: acInGaugeQuantity
 
-				// Gauge color changes only apply when there is a maximum value.
-				valueType: isNaN(acInputRange.maximumValue)
-						   ? VenusOS.Gauges_ValueType_NeutralPercentage
-						   : VenusOS.Gauges_ValueType_RisingPercentage
+				alignment: parent.alignment
+				icon.source: root._inputsIconSource
+				leftMargin: root._gaugeLabelMargin - root._gaugeArcMargin
+				opacity: root._gaugeLabelOpacity
 
-				AcInGaugeQuantityRow {
-					id: acInGaugeQuantity
-
-					// When >= 2 left gauges, AC input is always the top one, so label aligns to
-					// the bottom.
-					alignment: Qt.AlignLeft | (root._leftGaugeCount >= 2 ? Qt.AlignBottom : Qt.AlignVCenter)
-					icon.source: root._inputsIconSource
-					leftPadding: root._gaugeLabelMargin - root._gaugeArcMargin
-					opacity: root._gaugeLabelOpacity
-					quantityLabel.dataObject: Global.acInputs.activeInput
-				}
-
-				ValueRange {
-					id: acInputRange
-
-					value: acInGaugeQuantity.quantityLabel.value
-
-					// When showing current instead of power, set a max value to change the gauge colors
-					// when the value approaches the currentLimit.
-					maximumValue: acInGaugeQuantity.quantityLabel.unit === VenusOS.Units_Amp
-						? Global.acInputs.currentLimit
-						: NaN
-				}
+				// AC and DC amp values cannot be combined. If there are both AC and DC values, show
+				// Watts even if Amps is preferred.
+				quantityLabel.unit: Global.systemSettings.electricalQuantity === VenusOS.Units_Amp
+					&& ((Global.acInputs.current || 0) === 0 || (Global.dcInputs.current || 0) === 0)
+					   ? VenusOS.Units_Amp
+					   : VenusOS.Units_Watt
+				quantityLabel.value: quantityLabel.unit === VenusOS.Units_Amp
+					? (Global.acInputs.current || 0) === 0
+					  ? Global.dcInputs.current
+					  : Global.acInputs.current
+					: Units.sumRealNumbers(Global.acInputs.power, Global.dcInputs.power)
 			}
-			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load AC input edge")
-		}
 
-		Loader {
-			id: dcInputGauge
+			ValueRange {
+				id: inputsRange
 
-			width: Theme.geometry_briefPage_edgeGauge_width
-			height: active ? root._leftGaugeHeight : 0
-			active: Global.dcInputs.model.count > 0
-			sourceComponent: SideGauge {
-				readonly property var gaugeParams: root._leftGaugeParameters(dcInputGauge)
+				value: acInGaugeQuantity.quantityLabel.value
 
-				// DC input gauge progresses in clockwise direction (i.e. upwards).
-				direction: PathArc.Clockwise
-				startAngle: gaugeParams.start || 0
-				endAngle: gaugeParams.end || 0
-				arcVerticalCenterOffset: gaugeParams.arcVerticalCenterOffset || 0
-				horizontalAlignment: Qt.AlignLeft
-
-				x: root._gaugeArcMargin
-				opacity: root._gaugeArcOpacity
-				animationEnabled: root.animationEnabled
-				value: !visible ? 0 : dcInputRange.valueAsRatio * 100
-
-				ArcGaugeQuantityRow {
-					id: dcInGaugeQuantity
-					alignment: root._leftGaugeCount === 2
-							// DC input gauge is the second (bottom) gauge, so label aligns to the
-							// top, or is the first (top) gauge, so label aligns to the bottom.
-							? Qt.AlignLeft | (acInputGauge.active ? Qt.AlignTop : Qt.AlignBottom)
-							: Qt.AlignLeft| Qt.AlignVCenter
-					icon.source: root._inputsIconSource
-					leftPadding: root._gaugeLabelMargin - root._gaugeArcMargin
-					opacity: root._gaugeLabelOpacity
-					quantityLabel.dataObject: Global.dcInputs
-				}
-
-				ValueRange {
-					id: dcInputRange
-					value: root.visible ? Global.dcInputs.power || 0 : 0
-				}
+				// When showing current instead of power, set a max value to change the gauge colors
+				// when the value approaches the currentLimit.
+				maximumValue: acInGaugeQuantity.quantityLabel.unit === VenusOS.Units_Amp
+					? Global.acInputs.currentLimit
+					: NaN
 			}
-			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load DC input edge")
 		}
-
-		Loader {
-			id: solarYieldGauge
-
-			width: Theme.geometry_briefPage_edgeGauge_width
-			height: active ? root._leftGaugeHeight : 0
-			active: Global.solarChargers.model.count > 0 || Global.pvInverters.model.count > 0
-			sourceComponent: SolarYieldGauge {
-				readonly property var gaugeParams: root._leftGaugeParameters(solarYieldGauge)
-
-				// Solar gauge progresses in counter-clockwise direction (i.e. downwards).
-				direction: PathArc.Counterclockwise
-				startAngle: gaugeParams.end || 0
-				endAngle: gaugeParams.start || 0
-				arcVerticalCenterOffset: gaugeParams.arcVerticalCenterOffset || 0
-				horizontalAlignment: Qt.AlignLeft
-
-				x: root._gaugeArcMargin
-				opacity: root._gaugeArcOpacity
-				animationEnabled: root.animationEnabled
-
-				ArcGaugeQuantityRow {
-					// When >= 2 left gauges, solar gauge is always the bottom one, so label aligns
-					// to the top.
-					alignment: Qt.AlignLeft | (root._leftGaugeCount >= 2 ? Qt.AlignTop : Qt.AlignVCenter)
-					icon.source: "qrc:/images/solaryield.svg"
-					leftPadding: root._gaugeLabelMargin - root._gaugeArcMargin
-					opacity: root._gaugeLabelOpacity
-					quantityLabel.dataObject: Global.system.solar
-				}
-			}
-			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load solar yield gauge")
-		}
+		onStatusChanged: if (status === Loader.Error) console.warn("Unable to load AC input edge")
 	}
 
-	// Right gauge column
-	Column {
+	Loader {
+		id: solarYieldGauge
+
 		anchors {
 			verticalCenter: mainGauge.verticalCenter
+			verticalCenterOffset: acInputGauge.active ? (height / 2) : 0
+			left: parent.left
+			leftMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
+			right: mainGauge.left
+		}
+		active: Global.solarChargers.model.count > 0 || Global.pvInverters.model.count > 0
+		sourceComponent: SolarYieldGauge {
+			readonly property var gaugeParams: root.leftGaugeParameters(solarYieldGauge)
+
+			// Solar gauge progresses in counter-clockwise direction (i.e. downwards).
+			direction: PathArc.Counterclockwise
+			startAngle: gaugeParams.end || 0
+			endAngle: gaugeParams.start || 0
+			height: gaugeParams.height || 0
+			alignment: gaugeParams.alignment || 0
+
+			x: root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
+			animationEnabled: root.animationEnabled
+
+			ArcGaugeQuantityRow {
+				alignment: parent.alignment
+				icon.source: "qrc:/images/solaryield.svg"
+				leftMargin: root._gaugeLabelMargin - root._gaugeArcMargin
+				opacity: root._gaugeLabelOpacity
+				quantityLabel.dataObject: Global.system.solar
+			}
+		}
+		onStatusChanged: if (status === Loader.Error) console.warn("Unable to load solar yield gauge")
+	}
+
+	Loader {
+		id: acLoadGauge
+
+		anchors {
+			verticalCenter: mainGauge.verticalCenter
+			verticalCenterOffset: dcLoadGauge.active ? -(height / 2) : 0
 			right: parent.right
 			rightMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
+			left: mainGauge.right
 		}
-		width: Theme.geometry_briefPage_edgeGauge_width
+		active: !isNaN(Global.system.loads.acPower)
+		sourceComponent: SideGauge {
+			readonly property var gaugeParams: root.rightGaugeParameters(acLoadGauge)
 
-		Loader {
-			id: acLoadGauge
+			// AC load gauge progresses in counter-clockwise direction (i.e. upwards).
+			direction: PathArc.Counterclockwise
+			startAngle: gaugeParams.end || 0
+			endAngle: gaugeParams.start || 0
+			height: gaugeParams.height || 0
+			alignment: gaugeParams.alignment || 0
 
-			width: Theme.geometry_briefPage_edgeGauge_width
-			height: active ? root._rightGaugeHeight : 0
-			active: !isNaN(Global.system.loads.acPower)
-			sourceComponent: SideGauge {
-				readonly property var gaugeParams: root._rightGaugeParameters(acLoadGauge)
+			x: -root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
+			animationEnabled: root.animationEnabled
+			value: !visible ? 0 : acLoadsRange.valueAsRatio * 100
 
-				// AC load gauge progresses in counter-clockwise direction (i.e. upwards).
-				direction: PathArc.Counterclockwise
-				startAngle: gaugeParams.end || 0
-				endAngle: gaugeParams.start || 0
-				arcVerticalCenterOffset: gaugeParams.arcVerticalCenterOffset || 0
-				horizontalAlignment: Qt.AlignRight
-
-				x: -root._gaugeArcMargin
-				opacity: root._gaugeArcOpacity
-				animationEnabled: root.animationEnabled
-				value: !visible ? 0 : acLoadsRange.valueAsRatio * 100
-
-				ArcGaugeQuantityRow {
-					alignment: Qt.AlignRight | (root._rightGaugeCount === 2 ? Qt.AlignBottom : Qt.AlignVCenter)
-					icon.source: dcLoadGauge.active ? "qrc:/images/acloads.svg" : "qrc:/images/consumption.svg"
-					rightPadding: root._gaugeLabelMargin - root._gaugeArcMargin
-					opacity: root._gaugeLabelOpacity
-					quantityLabel.dataObject: Global.system.ac.consumption
-				}
-
-				ValueRange {
-					id: acLoadsRange
-					value: root.visible ? Global.system.loads.acPower || 0 : 0
-					maximumValue: Global.system.loads.maximumAcPower
-				}
+			ArcGaugeQuantityRow {
+				alignment: parent.alignment
+				icon.source: dcLoadGauge.active ? "qrc:/images/acloads.svg" : "qrc:/images/consumption.svg"
+				leftMargin: -root._gaugeLabelMargin + root._gaugeArcMargin
+				opacity: root._gaugeLabelOpacity
+				quantityLabel.dataObject: Global.system.ac.consumption
 			}
-			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load AC load edge")
-		}
 
-		Loader {
-			id: dcLoadGauge
-
-			width: Theme.geometry_briefPage_edgeGauge_width
-			height: active ? root._rightGaugeHeight : 0
-			active: !isNaN(Global.system.loads.dcPower)
-			sourceComponent: SideGauge {
-				readonly property var gaugeParams: root._rightGaugeParameters(dcLoadGauge)
-
-				// DC load gauge progresses in counter-clockwise direction (i.e. upwards).
-				direction: PathArc.Counterclockwise
-				startAngle: gaugeParams.end || 0
-				endAngle: gaugeParams.start || 0
-				arcVerticalCenterOffset: gaugeParams.arcVerticalCenterOffset || 0
-				horizontalAlignment: Qt.AlignRight
-
-				x: -root._gaugeArcMargin
-				opacity: root._gaugeArcOpacity
-				animationEnabled: root.animationEnabled
-				value: visible ? dcLoadsRange.valueAsRatio * 100 : 0
-
-				ArcGaugeQuantityRow {
-					alignment: Qt.AlignRight | (root._rightGaugeCount === 2 ? Qt.AlignTop : Qt.AlignVCenter)
-					icon.source: "qrc:/images/dcloads.svg"
-					rightPadding: root._gaugeLabelMargin - root._gaugeArcMargin
-					opacity: root._gaugeLabelOpacity
-					quantityLabel.dataObject: Global.system.dc
-				}
-
-				ValueRange {
-					id: dcLoadsRange
-					value: root.visible ? Global.system.loads.dcPower || 0 : 0
-				}
+			ValueRange {
+				id: acLoadsRange
+				value: root.visible ? Global.system.loads.acPower || 0 : 0
+				maximumValue: Global.system.loads.maximumAcPower
 			}
-			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load DC load gauge")
 		}
+		onStatusChanged: if (status === Loader.Error) console.warn("Unable to load AC load edge")
+	}
+
+	Loader {
+		id: dcLoadGauge
+
+		anchors {
+			verticalCenter: mainGauge.verticalCenter
+			verticalCenterOffset: acInputGauge.active ? (height / 2) : 0
+			right: parent.right
+			rightMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
+			left: mainGauge.right
+		}
+		active: !isNaN(Global.system.loads.dcPower)
+		sourceComponent: SideGauge {
+			readonly property var gaugeParams: root.rightGaugeParameters(dcLoadGauge)
+
+			// DC load gauge progresses in counter-clockwise direction (i.e. upwards).
+			direction: PathArc.Counterclockwise
+			startAngle: gaugeParams.end || 0
+			endAngle: gaugeParams.start || 0
+			height: gaugeParams.height || 0
+			alignment: gaugeParams.alignment || 0
+
+			x: -root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
+			animationEnabled: root.animationEnabled
+			value: visible ? dcLoadsRange.valueAsRatio * 100 : 0
+
+			ArcGaugeQuantityRow {
+				alignment: parent.alignment
+				icon.source: "qrc:/images/dcloads.svg"
+				leftMargin: -root._gaugeLabelMargin + root._gaugeArcMargin
+				opacity: root._gaugeLabelOpacity
+				quantityLabel.dataObject: Global.system.dc
+			}
+
+			ValueRange {
+				id: dcLoadsRange
+				value: root.visible ? Global.system.loads.dcPower || 0 : 0
+			}
+		}
+		onStatusChanged: if (status === Loader.Error) console.warn("Unable to load DC load gauge")
 	}
 
 	Loader {

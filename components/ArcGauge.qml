@@ -13,6 +13,7 @@ Item {
 	id: gauge
 
 	property alias value: arc.value
+
 	property int valueType: VenusOS.Gauges_ValueType_FallingPercentage
 	property alias startAngle: arc.startAngle
 	property alias endAngle: arc.endAngle
@@ -21,8 +22,9 @@ Item {
 	property alias strokeWidth: arc.strokeWidth
 	property alias direction: arc.direction
 	property alias animationEnabled: arc.animationEnabled
-	property real arcHorizontalCenterOffset
-	property real arcVerticalCenterOffset
+	property int alignment: Qt.AlignLeft
+	property var arcX
+	property var arcY
 
 	Item {
 		id: antialiased
@@ -40,8 +42,8 @@ Item {
 
 			width: radius*2
 			height: width
-			x: ((gauge.width - width) / 2) + gauge.arcHorizontalCenterOffset
-			y: ((gauge.height - height) / 2) + gauge.arcVerticalCenterOffset
+			x: arcX !== undefined ? arcX : (gauge.alignment & Qt.AlignRight ? (gauge.width - 2*radius) : 0)
+			y: arcY !== undefined ? arcY : ((gauge.height - height) / 2)
 			progressColor: Theme.statusColorValue(valueStatus)
 			remainderColor: Theme.statusColorValue(valueStatus, true)
 		}
