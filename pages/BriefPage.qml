@@ -27,71 +27,6 @@ SwipeViewPage {
 		return "qrc:/images/icon_input_24.svg"
 	}
 
-	/*
-	  Returns the start/end angles for the gauge at the specified activeGaugeIndex, where the index
-	  indicates the gauge's index (in a clockwise direction) within the active gauges for the left
-	  or right edges.
-	  E.g. if both the AC input and solar gauges are active, the index of the AC input gauge is 1,
-	  since it is the second gauge when listing the left gauges in a clockwise direction. If the
-	  solar gauge was not active, the index would be 0 instead.
-	*/
-	function sideGaugeParameters(baseAngle, activeGaugeCount, activeGaugeIndex) {
-		// Start/end angles are those for the large single-gauge case if there is only one gauge,
-		// otherwise this angle is split into equal segments for each active gauge (minus spacing).
-		let maxSideAngle
-		let baseAngleOffset
-		if (activeGaugeCount === 1) {
-			maxSideAngle = Theme.geometry_briefPage_largeEdgeGauge_maxAngle
-			baseAngleOffset = 0
-		} else {
-			const totalSpacingAngle = Theme.geometry_briefPage_edgeGauge_spacingAngle * (activeGaugeCount - 1)
-			maxSideAngle = (Theme.geometry_briefPage_largeEdgeGauge_maxAngle - totalSpacingAngle) / activeGaugeCount
-			baseAngleOffset = Theme.geometry_briefPage_edgeGauge_spacingAngle * activeGaugeIndex
-		}
-		const gaugeStartAngle = baseAngle + (activeGaugeIndex * maxSideAngle) + baseAngleOffset
-		const gaugeEndAngle = gaugeStartAngle + maxSideAngle
-
-		// Gauge height is the height for the single-gauge case, split into equal segments for each
-		// active gauge.
-		let gaugeHeight
-		if (activeGaugeCount === 1) {
-			gaugeHeight = Theme.geometry_briefPage_largeEdgeGauge_height
-		} else {
-			const totalSpacing = Theme.geometry_briefPage_edgeGauge_spacing * (activeGaugeCount - 1)
-			gaugeHeight = (Theme.geometry_briefPage_largeEdgeGauge_height - totalSpacing) / activeGaugeCount
-		}
-
-		return { start: gaugeStartAngle, end: gaugeEndAngle, height: gaugeHeight }
-	}
-
-	function leftGaugeParameters(gauge) {
-		// In a clockwise direction, the gauges start from the solar gauge and go upwards to the AC
-		// input gauge.
-		const baseAngle = 270 - (Theme.geometry_briefPage_largeEdgeGauge_maxAngle / 2)
-		const activeGaugeCount = (acInputGauge.active ? 1 : 0) + (solarYieldGauge.active ? 1 : 0)
-		const gaugeIndex = gauge === solarYieldGauge ? 0 : (solarYieldGauge.active ? 1 : 0)
-		const params = sideGaugeParameters(baseAngle, activeGaugeCount, gaugeIndex)
-
-		const verticalAlignment = activeGaugeCount === 1
-				? Qt.AlignVCenter
-				: (gaugeIndex === 0 ? Qt.AlignBottom : Qt.AlignTop)
-		return Object.assign(params, { alignment: Qt.AlignLeft | verticalAlignment })
-	}
-
-	function rightGaugeParameters(gauge) {
-		// In a clockwise direction, the gauges start from the AC load gauge and go downwards to the
-		// DC load gauge.
-		const activeGaugeCount = (acLoadGauge.active ? 1 : 0) + (dcLoadGauge.active ? 1 : 0)
-		const baseAngle = 90 - (Theme.geometry_briefPage_largeEdgeGauge_maxAngle / 2)
-		const gaugeIndex = gauge === acLoadGauge ? 0 : (acLoadGauge.active ? 1 : 0)
-		const params = sideGaugeParameters(baseAngle, activeGaugeCount, gaugeIndex)
-
-		const verticalAlignment = activeGaugeCount === 1
-				? Qt.AlignVCenter
-				: (gaugeIndex === 0 ? Qt.AlignTop : Qt.AlignBottom)
-		return Object.assign(params, { alignment: Qt.AlignRight | verticalAlignment })
-	}
-
 	backgroundColor: Theme.color_briefPage_background
 	fullScreenWhenIdle: true
 	topLeftButton: VenusOS.StatusBar_LeftButton_ControlsInactive
@@ -102,8 +37,10 @@ SwipeViewPage {
 	Loader {
 		id: mainGauge
 
-		// vertically center to the unexpanded height of the page
-		y: (Theme.geometry_screen_height - Theme.geometry_statusBar_height - Theme.geometry_navigationBar_height - height) / 2
+		anchors {
+			top: parent.top
+			topMargin: Theme.geometry_mainGauge_topMargin
+		}
 		width: Theme.geometry_mainGauge_size
 		height: width
 		x: sidePanel.x/2 - width/2
@@ -148,32 +85,29 @@ SwipeViewPage {
 		id: acInputGauge
 
 		anchors {
-			verticalCenter: mainGauge.verticalCenter
-			verticalCenterOffset: solarYieldGauge.active ? -(height / 2) : 0
+			top: parent.top
+			topMargin: Theme.geometry_briefPage_edgeGauge_topMargin
 			left: parent.left
 			leftMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
 			right: mainGauge.left
 		}
 		active: !!Global.acInputs.activeInput || Global.dcInputs.model.count > 0
+
 		sourceComponent: SideGauge {
-			readonly property var gaugeParams: root.leftGaugeParameters(acInputGauge)
-
-			// AC input gauge progresses in clockwise direction (i.e. upwards).
+			alignment: Qt.AlignLeft | (solarYieldGauge.active ? Qt.AlignTop : Qt.AlignVCenter)
+			arcX: solarYieldGauge.active ? undefined : 10
 			direction: PathArc.Clockwise
-			startAngle: gaugeParams.start || 0
-			endAngle: gaugeParams.end || 0
-			height: gaugeParams.height || 0
-			alignment: gaugeParams.alignment || 0
-
-			x: root._gaugeArcMargin
-			opacity: root._gaugeArcOpacity
+			startAngle: solarYieldGauge.active ? 270 : (270 - Theme.geometry_briefPage_largeEdgeGauge_maxAngle / 2)
 			animationEnabled: root.animationEnabled
-			value: !visible ? 0 : inputsRange.valueAsRatio * 100
 
 			// Gauge color changes only apply when there is a maximum value.
 			valueType: isNaN(inputsRange.maximumValue)
 					   ? VenusOS.Gauges_ValueType_NeutralPercentage
 					   : VenusOS.Gauges_ValueType_RisingPercentage
+
+			x: root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
+			value: !visible ? 0 : inputsRange.valueAsRatio * 100
 
 			AcInGaugeQuantityRow {
 				id: acInGaugeQuantity
@@ -215,23 +149,16 @@ SwipeViewPage {
 		id: solarYieldGauge
 
 		anchors {
-			verticalCenter: mainGauge.verticalCenter
-			verticalCenterOffset: acInputGauge.active ? (height / 2) : 0
+			top: acInputGauge.active ? acInputGauge.bottom : parent.top
+			topMargin: acInputGauge.active ? Theme.geometry_briefPage_lowerGauge_topMargin : Theme.geometry_briefPage_edgeGauge_topMargin
 			left: parent.left
 			leftMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
 			right: mainGauge.left
 		}
 		active: Global.solarChargers.model.count > 0 || Global.pvInverters.model.count > 0
+
 		sourceComponent: SolarYieldGauge {
-			readonly property var gaugeParams: root.leftGaugeParameters(solarYieldGauge)
-
-			// Solar gauge progresses in counter-clockwise direction (i.e. downwards).
-			direction: PathArc.Counterclockwise
-			startAngle: gaugeParams.end || 0
-			endAngle: gaugeParams.start || 0
-			height: gaugeParams.height || 0
-			alignment: gaugeParams.alignment || 0
-
+			alignment: Qt.AlignLeft | (acInputGauge.active ? Qt.AlignBottom : Qt.AlignVCenter)
 			x: root._gaugeArcMargin
 			opacity: root._gaugeArcOpacity
 			animationEnabled: root.animationEnabled
@@ -251,27 +178,19 @@ SwipeViewPage {
 		id: acLoadGauge
 
 		anchors {
-			verticalCenter: mainGauge.verticalCenter
-			verticalCenterOffset: dcLoadGauge.active ? -(height / 2) : 0
+			top: parent.top
+			topMargin: Theme.geometry_briefPage_edgeGauge_topMargin
 			right: parent.right
 			rightMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
 			left: mainGauge.right
 		}
-		active: !isNaN(Global.system.loads.acPower)
+		active: !isNaN(Global.system.loads.acPower) || dcLoadGauge.active
 		sourceComponent: SideGauge {
-			readonly property var gaugeParams: root.rightGaugeParameters(acLoadGauge)
-
-			// AC load gauge progresses in counter-clockwise direction (i.e. upwards).
-			direction: PathArc.Counterclockwise
-			startAngle: gaugeParams.end || 0
-			endAngle: gaugeParams.start || 0
-			height: gaugeParams.height || 0
-			alignment: gaugeParams.alignment || 0
-
-			x: -root._gaugeArcMargin
-			opacity: root._gaugeArcOpacity
+			alignment: Qt.AlignRight | (dcLoadGauge.active ? Qt.AlignTop : Qt.AlignVCenter)
 			animationEnabled: root.animationEnabled
 			value: !visible ? 0 : acLoadsRange.valueAsRatio * 100
+			x: -root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
 
 			ArcGaugeQuantityRow {
 				alignment: parent.alignment
@@ -294,27 +213,19 @@ SwipeViewPage {
 		id: dcLoadGauge
 
 		anchors {
-			verticalCenter: mainGauge.verticalCenter
-			verticalCenterOffset: acInputGauge.active ? (height / 2) : 0
+			top: acLoadGauge.bottom
+			topMargin: Theme.geometry_briefPage_lowerGauge_topMargin
 			right: parent.right
 			rightMargin: Theme.geometry_briefPage_edgeGauge_horizontalMargin
 			left: mainGauge.right
 		}
 		active: !isNaN(Global.system.loads.dcPower)
 		sourceComponent: SideGauge {
-			readonly property var gaugeParams: root.rightGaugeParameters(dcLoadGauge)
-
-			// DC load gauge progresses in counter-clockwise direction (i.e. upwards).
-			direction: PathArc.Counterclockwise
-			startAngle: gaugeParams.end || 0
-			endAngle: gaugeParams.start || 0
-			height: gaugeParams.height || 0
-			alignment: gaugeParams.alignment || 0
-
-			x: -root._gaugeArcMargin
-			opacity: root._gaugeArcOpacity
+			alignment: Qt.AlignRight | Qt.AlignBottom
 			animationEnabled: root.animationEnabled
 			value: visible ? dcLoadsRange.valueAsRatio * 100 : 0
+			x: -root._gaugeArcMargin
+			opacity: root._gaugeArcOpacity
 
 			ArcGaugeQuantityRow {
 				alignment: parent.alignment
