@@ -241,6 +241,7 @@ SwipeViewPage {
 				opacity: root._gaugeArcOpacity
 				animationEnabled: root.animationEnabled
 				value: visible ? dcInputRange.valueAsRatio * 100 : 0
+				valueType: VenusOS.Gauges_ValueType_NeutralPercentage
 
 				ArcGaugeQuantityRow {
 					id: dcInGaugeQuantity
@@ -261,6 +262,7 @@ SwipeViewPage {
 				ValueRange {
 					id: dcInputRange
 					value: root.visible ? Global.dcInputs.power || 0 : 0
+					maximumValue: Global.dcInputs.maximumPower
 				}
 			}
 			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load DC input edge")
