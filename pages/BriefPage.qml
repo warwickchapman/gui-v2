@@ -331,9 +331,10 @@ SwipeViewPage {
 				x: -root._gaugeArcMargin
 				opacity: root._gaugeArcOpacity
 				animationEnabled: root.animationEnabled
+				valueType: VenusOS.Gauges_ValueType_RisingPercentage
 				phaseModel: Global.system.ac.consumption.phases
-
-				// TODO set maximumCurrent
+				phaseModelProperty: "current"
+				maximumValue: Global.system.ac.consumption.maximumCurrent
 
 				ArcGaugeQuantityRow {
 					alignment: Qt.AlignRight | (root._rightGaugeCount === 2 ? Qt.AlignBottom : Qt.AlignVCenter)
