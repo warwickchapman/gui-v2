@@ -34,7 +34,6 @@ Item {
 			direction: root.direction
 			startAngle: root.startAngle
 			endAngle: root.endAngle
-			radius: Theme.geometry_briefPage_edgeGauge_radius - index*strokeWidth
 			horizontalAlignment: root.horizontalAlignment
 			arcVerticalCenterOffset: root.arcVerticalCenterOffset
 			value: valueRange.valueAsRatio * 100
