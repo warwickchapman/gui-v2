@@ -369,6 +369,7 @@ SwipeViewPage {
 				opacity: root._gaugeArcOpacity
 				animationEnabled: root.animationEnabled
 				value: visible ? dcLoadsRange.valueAsRatio * 100 : 0
+				valueType: VenusOS.Gauges_ValueType_RisingPercentage
 
 				ArcGaugeQuantityRow {
 					alignment: Qt.AlignRight | (root._rightGaugeCount === 2 ? Qt.AlignTop : Qt.AlignVCenter)
@@ -381,6 +382,7 @@ SwipeViewPage {
 				ValueRange {
 					id: dcLoadsRange
 					value: root.visible ? Global.system.loads.dcPower || 0 : 0
+					maximumValue: Global.system.dc.maximumPower
 				}
 			}
 			onStatusChanged: if (status === Loader.Error) console.warn("Unable to load DC load gauge")
