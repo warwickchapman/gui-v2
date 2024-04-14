@@ -44,11 +44,25 @@ QtObject {
 		uid: Global.system.serviceUid + "/Ac/ActiveIn/Source"
 	}
 	readonly property Loader _activeInputLoader: Loader {
-		active: root._activeInputSource.sourceAsInt !== VenusOS.AcInputs_InputSource_NotAvailable
-				&& root._activeInputSource.sourceAsInt !== VenusOS.AcInputs_InputSource_Inverting
+		active: root.sourceValid(root._activeInputSource.sourceAsInt)
 		sourceComponent: ActiveAcInput {
 			inputInfo: root.activeInputInfo
 		}
+	}
+
+	function sourceValid(source) {
+		return source !== VenusOS.AcInputs_InputSource_NotAvailable && source !== VenusOS.AcInputs_InputSource_Inverting
+	}
+
+	function findValidSource() {
+		if (activeInput) {
+			return activeInput.source
+		} else if (sourceValid(input1Info.source)) {
+			return input1Info.source
+		} else if (sourceValid(input2Info.source)) {
+			return input2Info.source
+		}
+		return VenusOS.AcInputs_InputSource_NotAvailable
 	}
 
 	function sourceToText(source) {
