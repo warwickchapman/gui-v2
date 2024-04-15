@@ -667,7 +667,7 @@ SwipeViewPage {
 		WidgetConnectorAnchor {
 			id: inverterLeftConnectorAnchor
 			location: VenusOS.WidgetConnector_Location_Left
-			visible: Global.acInputs.activeInput
+			visible: Global.acInputs.findValidSource() !== VenusOS.AcInputs_InputSource_NotAvailable
 					|| Global.acInputs.generatorInput
 					|| Global.pvInverters.model.count > 0
 		}
