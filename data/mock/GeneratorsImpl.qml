@@ -34,6 +34,7 @@ QtObject {
 				_state.setValue(VenusOS.Generators_State_Running)
 				_runningBy.setValue(VenusOS.Generators_RunningBy_Soc)
 				setAutoStart(true)
+				_runtime.setValue(53)
 			}
 
 			property Connections _stateUpdate: Connections {

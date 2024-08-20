@@ -52,9 +52,9 @@ GeneratorDialog {
 				text: qsTrId("controlcard_generator_stopdialog_total_run_time")
 			}
 
-			FixedWidthLabel {
+			GeneratorRuntimeLabel {
 				anchors.horizontalCenter: parent.horizontalCenter
-				text: Utils.formatAsHHMMSS(root.generator.runtime)
+				serviceUid: root.generator.serviceUid
 				font.pixelSize: Theme.font_size_h3
 			}
 

@@ -252,6 +252,7 @@ set (VENUS_QML_MODULE_SOURCES
     components/EvChargerStatusModel.qml
     components/FlatListItemSeparator.qml
     components/GeneratorIconLabel.qml
+    components/GeneratorRuntimeLabel.qml
     components/GradientListView.qml
     components/GsmStatusIcon.qml
     components/IconButton.qml
