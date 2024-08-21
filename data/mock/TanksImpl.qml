@@ -59,7 +59,7 @@ QtObject {
 
 			onTypeChanged: {
 				if (type >= 0) {
-					_customName.setValue("Custom " + Gauges.tankProperties(type).name + " tank")
+//                    _customName.setValue("Custom " + Gauges.tankProperties(type).name + " tank")
 				}
 			}
 

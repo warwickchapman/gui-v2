@@ -13,7 +13,10 @@ QtObject {
 
 	function populate() {
 		for (let i = 0; i < 3; ++i) {
-			createCharger({ status: Math.random() * VenusOS.Evcs_Status_Charged, mode: VenusOS.Evcs_Mode_Auto })
+			createCharger({
+				status: Math.floor(Math.random() * VenusOS.Evcs_Status_Charged),
+				mode: Math.floor(Math.random() * VenusOS.Evcs_Mode_Scheduled)
+			})
 		}
 	}
 
@@ -83,7 +86,7 @@ QtObject {
 				interval: 3000
 
 				onTriggered: {
-					evCharger._status.setValue(Math.random() * VenusOS.Evcs_Status_OverheatingDetected)
+					evCharger._status.setValue(Math.floor(Math.random() * VenusOS.Evcs_Status_OverheatingDetected))
 				}
 			}
 

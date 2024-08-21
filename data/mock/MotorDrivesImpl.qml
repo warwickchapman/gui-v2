@@ -24,6 +24,7 @@ QtObject {
 			Component.onCompleted: {
 				_deviceInstance.setValue(deviceInstance)
 				_customName.setValue("Motor Drive %1".arg(deviceInstance))
+				Global.mockDataSimulator.setMockValue(serviceUid + "/Motor/RPM", Math.random() * 100)
 			}
 		}
 	}
