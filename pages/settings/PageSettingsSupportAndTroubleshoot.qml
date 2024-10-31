@@ -6,6 +6,7 @@
 import QtQuick
 import Victron.VenusOS
 import QZXing
+import QtQuick.Templates as T
 
 Page {
 	id: root
@@ -16,7 +17,29 @@ Page {
     readonly property string firmwareOnlineAvailableVersion: firmwareOnlineAvailableVersionItem.isValid ? firmwareOnlineAvailableVersionItem.value : ""
     readonly property bool firmwareOnlineCheck: firmwareOnlineCheckItem.isValid ? firmwareOnlineCheckItem.value : false
     readonly property int firmwareState: firmwareStateItem.isValid ? firmwareStateItem.value : FirmwareUpdater.Idle
+    // readonly property int fsModifiedCheck: fsModifiedCheckItem.isValid ? fsModifiedCheckItem.value : 0
+    readonly property int fsModifiedStatus: fsModifiedStatusItem.isValid ? fsModifiedStatusItem.value : 0
 
+	function getFsModifiedState() {
+		if (fsModifiedStatus === 0) {
+			//% "Clean"
+			// return qsTrId("settings_support_and_troubleshoot_clean")
+            return "Clean"
+		} else if (fsModifiedStatus === 1) {
+            //% "Modified"
+            // return qsTrId("settings_support_and_troubleshoot_modified")
+            return "Modified"
+		} else {
+            //% "Unknown"
+            // return qsTrId("settings_support_and_troubleshoot_unknown")
+            return "Unknown"
+        }
+	}
+
+    VeQuickItem {
+        id: troubleshootEnabledItem
+        uid: Global.systemSettings.serviceUid + "/Settings/System/Troubleshoot/Enabled"
+    }
 	VeQuickItem {
 		id: firmwareInstalledBuildItem
 		uid: Global.venusPlatform.serviceUid + "/Firmware/Installed/Build"
@@ -41,6 +64,18 @@ Page {
         id: firmwareStateItem
         uid: Global.venusPlatform.serviceUid + "/Firmware/State"
     }
+    VeQuickItem {
+        id: forceFirmwareReinstallItem
+        uid: Global.venusPlatform.serviceUid + "/Troubleshoot/ForceFirmwareReinstall"
+    }
+    VeQuickItem {
+        id: fsModifiedCheckItem
+        uid: Global.venusPlatform.serviceUid + "/Troubleshoot/FsModified/Check"
+    }
+    VeQuickItem {
+        id: fsModifiedStatusItem
+        uid: Global.venusPlatform.serviceUid + "/Troubleshoot/FsModified/Status"
+    }
 
 
 	GradientListView {
@@ -49,6 +84,7 @@ Page {
 		model: ObjectModel {
 
 			ListSwitch {
+                id: troubleshootEnabled
 				text: "Disable all third party integrations"
                 /*
                 Venus Platform
@@ -58,18 +94,12 @@ Page {
                 - Disable rc.local by renaming it to rc.local.disabled
                 - Disable rcS.local by renaming it to rcS.local.disabled
                 */
-				// dataItem.uid: Global.systemSettings.serviceUid + "/Settings/System/DisableThirdPartyIntegrations"
 				dataItem.uid: Global.systemSettings.serviceUid + "/Settings/System/Troubleshoot/Enabled"
 			}
 
-			ListButton {
-				id: rootFsModified
-
-				text: "Was the rootfs modified?"
-				button.text: "No"
-
-				enabled: buttom.text !== "No"
-				writeAccessLevel: VenusOS.User_AccessType_User
+			ListTextItem {
+				text: "Root FS status"
+				secondaryText: getFsModifiedState()
 			}
 
 			ListButton {
@@ -111,6 +141,31 @@ Page {
 				}
 			}
 
+			ListButton {
+				text: "Force clean online Venus OS update"
+				//% "Reboot now"
+				button.text: "Press to start"
+				writeAccessLevel: VenusOS.User_AccessType_User
+				onClicked: Global.dialogLayer.open(confirmReinstallDialogComponent)
+
+				Component {
+					id: confirmReinstallDialogComponent
+
+					ModalWarningDialog {
+						//% "Press 'OK' to reinstall root fs and reboot."
+						title: "Press 'OK' to force an online Venus OS update.<br>Before the update third party integrations will be disabled and they can be enabled again later."
+						dialogDoneOptions: VenusOS.ModalDialog_DoneOptions_OkAndCancel
+						onClosed: {
+							if (result === T.Dialog.Accepted) {
+								troubleshootEnabledItem.setValue(1)
+                                forceFirmwareReinstallItem.setValue(1)
+							}
+						}
+					}
+				}
+
+			}
+
             /*
 			ListNavigationItem {
 				//% "Online updates"
@@ -132,7 +187,7 @@ Page {
 			ListButton {
 				text: "Check the FAQ"
 				button.text: "Open in a new tab"
-                // allowed: defaultAllowed && Qt.platform.os === "wasm"
+                allowed: defaultAllowed && Qt.platform.os === "wasm"
 				onClicked: BackendConnection.openUrl("https://www.victronenergy.com/media/pg/Energy_Storage_System/en/faq.html")
 			}
 
@@ -156,7 +211,7 @@ Page {
 			ListButton {
 				text: "Check how to troubleshoot"
 				button.text: "Open in a new tab"
-                // allowed: defaultAllowed && Qt.platform.os === "wasm"
+                allowed: defaultAllowed && Qt.platform.os === "wasm"
 				onClicked: BackendConnection.openUrl("https://www.victronenergy.com/media/pg/Venus_GX/en/troubleshooting.html")
 			}
 
@@ -183,7 +238,7 @@ Page {
             ListButton {
                 text: "Check the forum"
                 button.text: "Open in a new tab"
-                // allowed: defaultAllowed && Qt.platform.os === "wasm"
+                allowed: defaultAllowed && Qt.platform.os === "wasm"
                 onClicked: BackendConnection.openUrl("https://community.victronenergy.com/")
             }
 
@@ -205,9 +260,9 @@ Page {
             }
 
             ListButton {
-                text: "Find a local distributo"
+                text: "Find a local distributor"
                 button.text: "Open in a new tab"
-                // allowed: defaultAllowed && Qt.platform.os === "wasm"
+                allowed: defaultAllowed && Qt.platform.os === "wasm"
                 onClicked: BackendConnection.openUrl("https://www.victronenergy.com/where-to-buy")
             }
 
@@ -230,12 +285,16 @@ Page {
 		}
 	}
 
-    /*
+
     Component.onCompleted: {
         // Check for updates
         if (firmwareOnlineCheck === false) {
             Global.firmwareUpdate.checkForUpdate(VenusOS.Firmware_UpdateType_Online)
         }
+
+        // Start checking for root fs status
+        fsModifiedCheckItem.setValue(1)
+
     }
-    */
+
 }
